@@ -1,17 +1,71 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en_US">
 	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width">
 
-		<link href="styles/style.css" rel="stylesheet "/>
+		<link href="styles/style.css" rel="stylesheet">
+
+		<script type="text/javascript" src="https://cdn.metered.ca/sdk/video/1.4.5/sdk.min.js"></script>
 	</head>
 	<body>
-		<h1>Screen Sharing Demo</h1>
-		<button id="video-start">Start video</button>
-		<button id="video-stop">Stop video</button>
-		<br><br>
-		<video id="video" autoplay></video>
-		<script src="scripts/host.js"></script>
+		<div class="container">
+			<h1>Screen Sharing Demo</h1>
+
+			<button id="share-screen">Share Screen</button>
+			<button id="stop-screen-share">Stop Screen Sharing</button>
+
+			<br>
+
+			<button id="share-microphone">Share Microphone</button>
+			<button id="stop-microphone">Stop Microphone</button>
+
+			<br>
+
+			<video src="" muted autoplay id="local-video" style="max-width: 800px"></video>
+		</div>
+
+		<script>
+			const meeting = new Metered.Meeting();
+			(async function() {
+				await meeting.join({
+					roomURL: "jyd86.metered.live/uk3cblfkzw"
+				});
+			})();
+
+
+			document.getElementById("share-screen").addEventListener("click", async () => {
+				await meeting.startScreenShare();
+			});
+
+			document.getElementById("stop-screen-share").addEventListener("click", async () => {
+				await meeting.stopVideo();
+			});
+
+			document.getElementById("share-microphone").addEventListener("click", async () => {
+				await meeting.startAudio();
+			});
+
+			document.getElementById("stop-microphone").addEventListener("click", async () => {
+				await meeting.stopAudio();
+			});
+
+			meeting.on("localTrackStarted", async (trackItem) => {
+				if (trackItem.type === "video") {
+					const mediaStream = new MediaStream();
+					mediaStream.addTrack(trackItem.track);
+					document.getElementById("local-video").srcObject = mediaStream;
+				}
+			});
+
+
+			meeting.on("localTrackUpdated", async (trackItem) => {
+				if (trackItem.type === "video") {
+					const mediaStream = new MediaStream();
+					mediaStream.addTrack(trackItem.track);
+					document.getElementById("local-video").srcObject = mediaStream;
+				}
+			});
+		</script>
 	</body>
 </html>
